@@ -167,52 +167,64 @@ body{font-family:'Lato',sans-serif;background:var(--bg);}
 .memory-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--gold-light);border:1px solid var(--border);border-radius:20px;font-size:12px;color:var(--ink2);margin:3px;}
 `;
 
-// ─── API KEY SCREEN ────────────────────────────────────────────────────────
+// ─── CONFIG ────────────────────────────────────────────────────────────────
+const APP_PASSWORD = "RichIA";
+const API_KEY = import.meta.env.VITE_ANTHROPIC_KEY || "";
 
-function APIKeyScreen({ onConfirm }) {
-  const [key, setKey] = useState("");
+// ─── PASSWORD SCREEN ───────────────────────────────────────────────────────
+
+function PasswordScreen({ onConfirm }) {
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [testing, setTesting] = useState(false);
+  const [shaking, setShaking] = useState(false);
 
-  async function handleConfirm() {
-    if (!key.startsWith("sk-ant-")) { setError("La key debe comenzar con sk-ant-... Verifícala en console.anthropic.com"); return; }
-    setTesting(true); setError("");
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-        body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 10, messages: [{ role: "user", content: "hola" }] })
-      });
-      if (res.ok) onConfirm(key);
-      else setError("API key inválida o sin créditos. Verifica en console.anthropic.com");
-    } catch { setError("Error de conexión. Intenta de nuevo."); }
-    setTesting(false);
+  function handleConfirm() {
+    if (password === APP_PASSWORD) {
+      onConfirm();
+    } else {
+      setError("Contraseña incorrecta. Intenta de nuevo.");
+      setShaking(true);
+      setTimeout(() => setShaking(false), 500);
+    }
   }
 
   return (
     <div className="fade-up" style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
-      <div style={{ width: "100%", maxWidth: "440px", textAlign: "center" }}>
+      <style>{`@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}`}</style>
+      <div style={{ width: "100%", maxWidth: "400px", textAlign: "center" }}>
         <div style={{ fontSize: "52px", marginBottom: "16px", animation: "glow 3s ease-in-out infinite" }}>👁️</div>
         <div style={{ fontFamily: "'Cinzel'", fontSize: "44px", fontWeight: "900", color: "var(--gold)", letterSpacing: "6px", marginBottom: "4px" }}>ELROI</div>
         <div style={{ fontFamily: "'Cinzel'", fontSize: "12px", color: "var(--ink3)", letterSpacing: "3px", marginBottom: "4px" }}>אֵל רֳאִי · El Dios que me ve</div>
-        <div style={{ fontSize: "13px", color: "var(--ink3)", marginBottom: "8px" }}>Sistema de Reclutamiento Inteligente</div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 14px", background: "var(--gold-light)", border: "1px solid var(--border)", borderRadius: "20px", fontSize: "12px", color: "var(--gold)", marginBottom: "32px", fontWeight: "700" }}>
+        <div style={{ fontSize: "13px", color: "var(--ink2)", marginBottom: "8px", fontStyle: "italic" }}>Sistema de Reclutamiento Inteligente</div>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "4px 14px", background: "var(--gold-light)", border: "1px solid var(--border)", borderRadius: "20px", fontSize: "12px", color: "var(--gold)", marginBottom: "36px", fontWeight: "700" }}>
           ⚡ IMAGINAMOS
         </div>
-        <div className="card" style={{ padding: "28px", textAlign: "left" }}>
-          <h3 style={{ fontFamily: "'Cinzel'", fontSize: "14px", color: "var(--gold)", marginBottom: "6px", letterSpacing: "1px" }}>INGRESA TU API KEY</h3>
+        <div className="card" style={{ padding: "28px", textAlign: "left", animation: shaking ? "shake 0.4s ease" : "none" }}>
+          <h3 style={{ fontFamily: "'Cinzel'", fontSize: "14px", color: "var(--gold)", marginBottom: "6px", letterSpacing: "1px" }}>ACCESO AL SISTEMA</h3>
           <p style={{ fontSize: "12px", color: "var(--ink3)", marginBottom: "16px", lineHeight: "1.6" }}>
-            Obtén tu clave gratis en <a href="https://console.anthropic.com" target="_blank" rel="noreferrer" style={{ color: "var(--gold)" }}>console.anthropic.com</a> → API Keys → Create Key
+            Ingresa la contraseña para acceder a ELROI
           </p>
-          <input className="input" type="password" placeholder="sk-ant-api03-..." value={key}
-            onChange={e => { setKey(e.target.value); setError(""); }}
+          <input
+            className="input"
+            type="password"
+            placeholder="Contraseña..."
+            value={password}
+            onChange={e => { setPassword(e.target.value); setError(""); }}
             onKeyDown={e => e.key === "Enter" && handleConfirm()}
-            style={{ marginBottom: "10px", fontFamily: "monospace", fontSize: "12px" }} />
-          {error && <div style={{ fontSize: "12px", color: "var(--red)", marginBottom: "10px", padding: "8px 12px", background: "var(--red-light)", borderRadius: "8px" }}>{error}</div>}
-          <button className="btn-gold" onClick={handleConfirm} disabled={!key || testing} style={{ width: "100%" }}>
-            {testing ? "Verificando..." : "Entrar a ELROI →"}
+            style={{ marginBottom: "10px", fontSize: "14px", letterSpacing: "2px" }}
+            autoFocus
+          />
+          {error && (
+            <div style={{ fontSize: "12px", color: "var(--red)", marginBottom: "10px", padding: "8px 12px", background: "var(--red-light)", borderRadius: "8px" }}>
+              {error}
+            </div>
+          )}
+          <button className="btn-gold" onClick={handleConfirm} disabled={!password} style={{ width: "100%" }}>
+            Entrar a ELROI →
           </button>
-          <p style={{ fontSize: "11px", color: "var(--ink3)", marginTop: "12px", textAlign: "center" }}>Tu clave solo se usa en esta sesión y nunca se almacena.</p>
+          <p style={{ fontSize: "11px", color: "var(--ink3)", marginTop: "12px", textAlign: "center" }}>
+            Acceso exclusivo para el equipo de People · Imaginamos
+          </p>
         </div>
       </div>
     </div>
@@ -729,12 +741,12 @@ function MemoryModule({ memory, onLearn, onForget }) {
 // ─── MAIN APP ─────────────────────────────────────────────────────────────
 
 export default function ELROI() {
-  const [apiKey, setApiKey] = useState("");
+  const [unlocked, setUnlocked] = useState(false);
   const [activeTab, setActiveTab] = useState("chat");
   const [memory, setMemory] = useState([]);
 
-  async function handleSetApiKey(key) {
-    setApiKey(key);
+  async function handleUnlock() {
+    setUnlocked(true);
     try {
       const saved = await window.storage.get("elroi-memory");
       if (saved) setMemory(JSON.parse(saved.value));
@@ -756,7 +768,7 @@ export default function ELROI() {
     try { await window.storage.set("elroi-memory", JSON.stringify(updated)); } catch {}
   }
 
-  if (!apiKey) return <APIKeyScreen onConfirm={handleSetApiKey} />;
+  if (!unlocked) return <PasswordScreen onConfirm={handleUnlock} />;
 
   const tabs = [
     { id: "chat", icon: "💬", label: "Consultar" },
@@ -768,7 +780,6 @@ export default function ELROI() {
     <>
       <style>{css}</style>
       <div style={{ minHeight: "100vh", background: "var(--bg)", display: "flex", flexDirection: "column" }}>
-        {/* Header */}
         <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "14px", background: "var(--surface)" }}>
           <div style={{ fontSize: "22px" }}>👁️</div>
           <div>
@@ -780,10 +791,8 @@ export default function ELROI() {
             <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--green)", animation: "pulse 2s infinite" }} />
             <span style={{ fontSize: "11px", color: "var(--green)", fontWeight: "700" }}>ACTIVO</span>
           </div>
-          <button className="btn-ghost" style={{ fontSize: "11px", padding: "5px 12px" }} onClick={() => setApiKey("")}>Salir</button>
+          <button className="btn-ghost" style={{ fontSize: "11px", padding: "5px 12px" }} onClick={() => setUnlocked(false)}>Salir</button>
         </div>
-
-        {/* Tabs */}
         <div style={{ display: "flex", borderBottom: "1px solid var(--border)", background: "var(--surface)", paddingLeft: "8px" }}>
           {tabs.map(t => (
             <button key={t.id} className={`tab ${activeTab === t.id ? "active" : ""}`} onClick={() => setActiveTab(t.id)}>
@@ -791,15 +800,12 @@ export default function ELROI() {
             </button>
           ))}
         </div>
-
-        {/* Content */}
         <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-          {activeTab === "chat" && <ChatModule apiKey={apiKey} memory={memory} onLearn={learn} />}
-          {activeTab === "screening" && <ScreeningModule apiKey={apiKey} memory={memory} onLearn={learn} />}
+          {activeTab === "chat" && <ChatModule apiKey={API_KEY} memory={memory} onLearn={learn} />}
+          {activeTab === "screening" && <ScreeningModule apiKey={API_KEY} memory={memory} onLearn={learn} />}
           {activeTab === "memory" && <MemoryModule memory={memory} onLearn={learn} onForget={forget} />}
         </div>
       </div>
     </>
   );
 }
- 
