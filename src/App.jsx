@@ -169,7 +169,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);}
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const APP_PASSWORD = "RichIA";
-const API_KEY = "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";
+const API_KEY = "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";
 
 // ─── PASSWORD SCREEN ───────────────────────────────────────────────────────
 
