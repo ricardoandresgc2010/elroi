@@ -169,7 +169,7 @@ body{font-family:'Lato',sans-serif;background:var(--bg);}
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const APP_PASSWORD = "RichIA";
-const API_KEY = "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";
+const API_KEY = "";
 
 // ─── PASSWORD SCREEN ───────────────────────────────────────────────────────
 
@@ -252,9 +252,9 @@ function ChatModule({ apiKey, memory, onLearn }) {
 
   async function callClaude(userMsg) {
     convRef.current = [...convRef.current, { role: "user", content: userMsg }];
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch("/api/chat", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514", max_tokens: 1000,
         system: buildSystemPrompt(memory),
@@ -541,8 +541,8 @@ ${memory.length>0?`APRENDIZAJES PREVIOS: ${memory.slice(-3).join(" | ")}`:""}
 Responde SOLO con JSON válido sin backticks:
 {"name":"Nombre completo","currentRole":"Cargo actual","experience":"X años","education":"Título más relevante","totalScore":<1-10>,"recommendation":"Avanzar"|"En espera"|"Descartar","aiFirstScore":<1-10>,"cultureFitScore":<1-10>,"scores":[${profile.criteria.map(c=>`{"criterio":"${c.name}","puntaje":<1-10>,"comentario":"breve"}`).join(",")}],"strengths":["s1","s2","s3"],"alerts":["a1","a2"],"summary":"2-3 oraciones sobre el fit con Imaginamos"}`;
 
-        const res = await fetch("https://api.anthropic.com/v1/messages", {
-          method:"POST", headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
+        const res = await fetch("/api/chat", {
+          method:"POST", headers:{"Content-Type":"application/json"},
           body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:[{type:"document",source:{type:"base64",media_type:"application/pdf",data:base64}},{type:"text",text:prompt}]}]})
         });
         const data = await res.json();
